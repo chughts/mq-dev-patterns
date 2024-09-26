@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/mq-dev-patterns/static/css/main.f855e6bc.css",
+    "main.js": "/mq-dev-patterns/static/js/main.a2473447.js",
+    "static/js/453.75ca54c8.chunk.js": "/mq-dev-patterns/static/js/453.75ca54c8.chunk.js",
+    "index.html": "/mq-dev-patterns/index.html",
+    "main.f855e6bc.css.map": "/mq-dev-patterns/static/css/main.f855e6bc.css.map",
+    "main.a2473447.js.map": "/mq-dev-patterns/static/js/main.a2473447.js.map",
+    "453.75ca54c8.chunk.js.map": "/mq-dev-patterns/static/js/453.75ca54c8.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.f855e6bc.css",
+    "static/js/main.a2473447.js"
+  ]
+}
