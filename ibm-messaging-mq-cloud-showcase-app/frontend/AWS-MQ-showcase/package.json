@@ -2,49 +2,54 @@
   "name": "ibm-mq-demo",
   "version": "0.0.0",
   "private": true,
+  "packageManager": "npm@12.0.2",
+  "engines": {
+    "node": "^22.22.2 || ^24.15.0 || >=26.0.0"
+  },
   "repository": "git@github.com:ibm-messaging/mq-dev-patterns.git",
   "license": "Apache-2.0",
   "scripts": {
-    "build": "react-scripts build",
-    "ci-check": "yarn format:diff",
-    "clean": "yarn cache clean && yarn install",
-    "eject": "react-scripts eject",
-    "format": "prettier --write \"**/*.{js,md,scss}\"",
-    "format:diff": "prettier --list-different \"**/*.{js,md,scss}\"",
+    "dev": "vite --port 3000",
+    "start": "vite --port 3000",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -p tsconfig.json",
+    "ci-check": "npm run format:diff",
+    "clean": "rm -rf node_modules && npm ci",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,scss,css,md}\"",
+    "format:diff": "prettier --check \"**/*.{ts,tsx,js,jsx,scss,css,md}\"",
     "format:staged": "prettier --write",
-    "start": "BROWSER=none react-scripts start",
-    "test": "react-scripts test"
+    "prepare": "cd ../../.. && (husky ibm-messaging-mq-cloud-showcase-app/.husky || true)"
   },
   "dependencies": {
-    "@carbon/charts": "1.15.3",
-    "@carbon/charts-react": "1.15.3",
-    "@carbon/ibm-cloud-cognitive-cdai": "1.24.12",
-    "@carbon/react": "1.53.0",
-    "dom-to-image-more": "3.1.4",    
-    "axios": "1.12.0",
-    "d3": "7.6.1",        
-    "http-proxy-middleware": "2.0.9",
-    "react": "16.10.0",
-    "react-dom": "16.10.0",
-    "react-flow-renderer": "10.3.17",
-    "react-router-dom": "5.3.4",
-    "react-scripts": "5.0.1",
-    "react-toastify": "9.0.8",
-    "reactflow": "11.1.0",
-    "js-cookie": "^3.0.5",
-    "uuid": "^9.0.0"
+    "@carbon/charts": "1.27.25",
+    "@carbon/charts-react": "1.27.25",
+    "@carbon/colors": "^11.62.0",
+    "@carbon/ibm-products": "^2.102.0",
+    "@carbon/react": "1.120.0",
+    "@xyflow/react": "^12.12.1",
+    "axios": "^1.21.0",
+    "js-cookie": "^3.0.8",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-router-dom": "^7.18.5",
+    "react-toastify": "^11.2.0",
+    "uuid": "^14.0.3",
+    "zustand": "^5.0.16"
   },
   "devDependencies": {
-    "@commitlint/cli": "7.5.2",
-    "@commitlint/config-conventional": "7.5.0",
-    "husky": "1.3.1",
-    "lint-staged": "8.1.5",
-    "prettier": "1.17.0",
-    "sass": "1.51.0",
-    "wait-for-expect": "3.0.2"
-  },  
-  "eslintConfig": {
-    "extends": "react-app"
+    "@commitlint/cli": "^21.2.4",
+    "@commitlint/config-conventional": "^21.2.4",
+    "@types/js-cookie": "^3.0.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.2.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.0",
+    "prettier": "^3.9.10",
+    "sass": "^1.107.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5"
   },
   "browserslist": [
     ">0.2%",
@@ -52,35 +57,46 @@
     "not ie <= 11",
     "not op_mini all"
   ],
-  "husky": {
-    "hooks": {
-      "commit-msg": "commitlint -e $HUSKY_GIT_PARAMS",
-      "pre-commit": "lint-staged"
-    }
-  },
   "commitlint": {
     "extends": [
       "@commitlint/config-conventional"
     ]
   },
   "lint-staged": {
-    "*.js": [
-      "yarn format:staged",
-      "git add"
-    ],
-    "*.{scss,css}": [
-      "yarn format:staged",
-      "git add"
-    ],
-    "*.md": [
-      "yarn format:staged",
-      "git add"
-    ]
+    "*.{ts,tsx,js,jsx,scss,css,md}": "prettier --write"
   },
   "prettier": {
-    "jsxBracketSameLine": true,
+    "bracketSameLine": true,
     "printWidth": 80,
     "singleQuote": true,
     "trailingComma": "es5"
+  },
+  "allowScripts": {
+    "@carbon/charts": true,
+    "@carbon/charts-react": true,
+    "@carbon/colors": true,
+    "@carbon/feature-flags": true,
+    "@carbon/grid": true,
+    "@carbon/icon-helpers": true,
+    "@carbon/icons-react": true,
+    "@carbon/layout": true,
+    "@carbon/motion": true,
+    "@carbon/react": true,
+    "@carbon/styles": true,
+    "@carbon/themes": true,
+    "@carbon/type": true,
+    "@carbon/utilities": true,
+    "@carbon/utils-position": true,
+    "@ibm/plex": true,
+    "@ibm/plex-mono": true,
+    "@ibm/plex-sans": true,
+    "@ibm/plex-sans-arabic": true,
+    "@ibm/plex-sans-devanagari": true,
+    "@ibm/plex-sans-hebrew": true,
+    "@ibm/plex-sans-thai": true,
+    "@ibm/plex-sans-thai-looped": true,
+    "@ibm/plex-serif": true,
+    "@parcel/watcher": true,
+    "fsevents": true
   }
 }

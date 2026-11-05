@@ -1,0 +1,69 @@
+/**
+ * Copyright 2022, 2026 IBM Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the 'License');
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ **/
+
+import { Position } from '@xyflow/react';
+import type { MQFlowNode } from '../../../types';
+
+const isForTheCodingChallenge =
+  process.env.REACT_APP_IS_FOR_CODING_CHALLENGE === 'true';
+
+const DEFAULT_QUEUE_POSITION = { x: 650, y: 220 };
+const CODING_CHALLENGE_QUEUE_POSITION = { x: 750, y: 250 };
+
+const initialNodes: MQFlowNode[] = [
+  {
+    id: '1',
+    type: 'producer',
+    data: {
+      role: 'Producer',
+      label: 'Tickets Generator',
+      connectedQueue: 'DEV.QUEUE.1',
+      isActive: false,
+    },
+    position: { x: 200, y: 150 },
+    sourcePosition: Position.Right,
+    draggable: true,
+  },
+  {
+    id: '2',
+    type: 'consumer',
+    data: {
+      role: 'Consumer',
+      label: 'Customer 2',
+      connectedQueue: 'DEV.QUEUE.1',
+      isActive: false,
+    },
+    position: { x: 1150, y: 150 },
+    targetPosition: Position.Left,
+    draggable: true,
+  },
+  {
+    id: '3',
+    type: 'queue',
+    data: {
+      role: 'q',
+      depth: 0,
+      queueName: 'DEV.QUEUE.1',
+    },
+    position: isForTheCodingChallenge
+      ? CODING_CHALLENGE_QUEUE_POSITION
+      : DEFAULT_QUEUE_POSITION,
+    sourcePosition: Position.Right,
+    targetPosition: Position.Left,
+    draggable: true,
+  },
+];
+export default initialNodes;

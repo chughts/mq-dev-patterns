@@ -1,5 +1,7 @@
+"""Example of publishing a message to an IBM MQ topic
+"""
 # -*- coding: utf-8 -*-
-# Copyright 2019 IBM
+# Copyright 2019, 2025 IBM
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,135 +14,142 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from utils.env import EnvStore
-import os
+
 import json
 import datetime
-import pymqi
-
 import logging
+import sys
+
+import ibmmq as mq
+
+from utils.env import EnvStore
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('Pub')
 
 
-# function to establish connection to MQ Queue Manager
+class Global:
+    """A simple class rather than using a global statement """
+    MQDetails = {}
+    exit_code = 0
 
-def connect():
-    logger.info('Establising Connection with MQ Server')
+
+def connect(conn_info):
+    """ Establish connection to MQ Queue Manager """
+    logger.info('Establishing connection with MQ Server')
     try:
         cd = None
-        if not EnvStore.ccdtCheck():
-            logger.info('CCDT URL export is not set, will be using json envrionment client connections settings')
+        if not EnvStore.is_ccdt_available():
+            logger.info('CCDT URL export is not set, will be using json environment client connections settings')
 
-            cd = pymqi.CD(Version=pymqi.CMQXC.MQCD_VERSION_11)
-            cd.ChannelName = MQDetails[EnvStore.CHANNEL]
+            cd = mq.CD(Version=mq.CMQXC.MQCD_VERSION_11)
+            cd.ChannelName = Global.MQDetails[EnvStore.CHANNEL]
             cd.ConnectionName = conn_info
-            cd.ChannelType = pymqi.CMQC.MQCHT_CLNTCONN
-            cd.TransportType = pymqi.CMQC.MQXPT_TCP
+            cd.ChannelType = mq.CMQXC.MQCHT_CLNTCONN
+            cd.TransportType = mq.CMQXC.MQXPT_TCP
 
-            logger.info('Checking Cypher details')
+            logger.info('Checking cipher details')
             # If a cipher is set then set the TLS settings
-            if MQDetails[EnvStore.CIPHER]:
-                logger.info('Making use of Cypher details')
-                cd.SSLCipherSpec = MQDetails[EnvStore.CIPHER]
+            if Global.MQDetails[EnvStore.CIPHER]:
+                logger.info('Making use of cipher details')
+                cd.SSLCipherSpec = Global.MQDetails[EnvStore.CIPHER]
 
-
-        # Key repository is not specified in CCDT so look in envrionment settings
+        # Key repository is not specified in CCDT so look in environment settings
         # Create an empty SCO object
-        sco = pymqi.SCO()
-        if MQDetails[EnvStore.KEY_REPOSITORY]:
+        sco = mq.SCO()
+        if Global.MQDetails[EnvStore.KEY_REPOSITORY]:
             logger.info('Setting Key repository')
-            sco.KeyRepository = MQDetails[EnvStore.KEY_REPOSITORY]
+            sco.KeyRepository = Global.MQDetails[EnvStore.KEY_REPOSITORY]
 
-        #options = pymqi.CMQC.MQPMO_NO_SYNCPOINT | pymqi.CMQC.MQPMO_NEW_MSG_ID | pymqi.CMQC.MQPMO_NEW_CORREL_ID
-        options = pymqi.CMQC.MQPMO_NEW_CORREL_ID
+        qmgr = mq.QueueManager(None)
 
-        qmgr = pymqi.QueueManager(None)
-        qmgr.connect_with_options(MQDetails[EnvStore.QMGR],
-                                  user=credentials[EnvStore.USER],
-                                  password=credentials[EnvStore.PASSWORD],
-                                  opts=options, cd=cd, sco=sco)
+        # Set credentials
+        csp = mq.CSP()
+        csp.CSPUserId = EnvStore.getenv_value(EnvStore.APP_USER)
+        csp.CSPPassword = EnvStore.getenv_value(EnvStore.APP_PASSWORD)
+        if csp.CSPUserId is None:
+            csp = None
+
+        qmgr.connect_with_options(Global.MQDetails[EnvStore.QMGR],
+                                  csp=csp,
+                                  cd=cd, sco=sco)
         return qmgr
-    except pymqi.MQMIError as e:
-        logger.error("Error connecting")
-        logger.error(e)
+
+    except mq.MQMIError as e:
+        logger.error('Error connecting: %s', e)
+        Global.exit_code = 1
         return None
 
-
-# function to establish connection to Queue
-def getTopic():
-    logger.info('Connecting to Topic')
+def get_topic(qmgr):
+    """Establish access to a Topic"""
+    logger.info('Opening a topic')
     try:
-        t = pymqi.Topic(qmgr, topic_string=MQDetails[EnvStore.TOPIC_NAME])
-        t.open(open_opts=pymqi.CMQC.MQOO_OUTPUT)
+        t = mq.Topic(qmgr, topic_string=Global.MQDetails[EnvStore.TOPIC_NAME])
+        t.open(open_opts=mq.CMQC.MQOO_OUTPUT)
         return t
-    except pymqi.MQMIError as e:
-        logger.error("Error getting topic")
-        logger.error(e)
+    except mq.MQMIError as e:
+        logger.error('Error opening topic: %s', e)
+        Global.exit_code = 1
         return None
 
-# function to put message onto Queue
-
-
-def publishMessage():
-    logger.info('Attempting publish to Topic')
+def publish_message(topic, msg_object):
+    """Publish a message"""
+    logger.info('Attempting publish to topic')
     try:
-        md = pymqi.MD()
-        md.Format = pymqi.CMQC.MQFMT_STRING
-        # queue.put(json.dumps(msgObject).encode())
-        # queue.put(json.dumps(msgObject))
-        # topic.pub(str(json.dumps(msgObject)))
-        topic.pub(EnvStore.stringForVersion(json.dumps(msgObject)), md)
+        md = mq.MD()
+        md.Format = mq.CMQC.MQFMT_STRING
+        msg = str(json.dumps(msg_object))
 
-        logger.info("Publish message successful")
-    except pymqi.MQMIError as e:
-        logger.error("Error in publish to topic")
-        logger.error(e)
+        pmo = mq.PMO()
+        pmo.Options = mq.CMQC.MQPMO_NO_SYNCPOINT
+        topic.pub(msg, md, pmo)
+        logger.info('Publish message successful: %s', msg)
+    except mq.MQMIError as e:
+        logger.error('Error in publish to topic: %s', e)
+        Global.exit_code = 1
 
-
-def buildMQDetails():
+def build_mq_details():
+    """Create the connection details for the queue manager"""
     for key in [EnvStore.QMGR, EnvStore.CHANNEL, EnvStore.HOST,
                 EnvStore.PORT, EnvStore.KEY_REPOSITORY, EnvStore.CIPHER, EnvStore.TOPIC_NAME]:
-        MQDetails[key] = EnvStore.getEnvValue(key)
+        Global.MQDetails[key] = EnvStore.getenv_value(key)
+
+def main():
+    """Main function for BasicPublish application"""
+
+    # Application Logic starts here
+    logger.info('Application "BasicPublish" is starting')
+
+    env_store = EnvStore()
+    env_store.set_env()
+
+    Global.MQDetails = {}
+
+    build_mq_details()
+
+    conn_info = EnvStore.get_connection(EnvStore.HOST, EnvStore.PORT)
+
+    msg_object = {
+        'Greeting': 'Hello from Python! ' + str(datetime.datetime.now())
+    }
+
+    qmgr = None
+    topic = None
+
+    qmgr = connect(conn_info)
+    if qmgr is not None:
+        topic = get_topic(qmgr)
+    if topic is not None:
+        publish_message(topic, msg_object)
+        topic.close()
+
+    if qmgr is not None:
+        qmgr.disconnect()
+
+    logger.info('Application is ending')
+
+    sys.exit(Global.exit_code)
 
 
-# Application Logic starts here
-logger.info("Application is Starting")
-
-envStore = EnvStore()
-envStore.setEnv()
-
-MQDetails = {}
-credentials = {
-    EnvStore.USER: EnvStore.getEnvValue(EnvStore.APP_USER),
-    EnvStore.PASSWORD: EnvStore.getEnvValue(EnvStore.APP_PASSWORD)
-}
-
-buildMQDetails()
-
-logger.info('Credentials are set')
-#logger.info(credentials)
-
-#conn_info = "%s(%s)" % (MQDetails[EnvStore.HOST], MQDetails[EnvStore.PORT])
-conn_info = EnvStore.getConnection(EnvStore.HOST, EnvStore.PORT)
-
-msgObject = {
-    'Greeting': "Hello from Python! " + str(datetime.datetime.now())
-}
-
-qmgr = None
-topic = None
-
-qmgr = connect()
-if (qmgr):
-    topic = getTopic()
-    # queue.put(message.encode())
-if (topic):
-    publishMessage()
-    topic.close()
-
-if (qmgr):
-    qmgr.disconnect()
-
-logger.info("Application is closing")
+if __name__ == '__main__':
+    main()

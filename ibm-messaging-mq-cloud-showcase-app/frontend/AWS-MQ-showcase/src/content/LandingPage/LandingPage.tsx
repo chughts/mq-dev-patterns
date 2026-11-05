@@ -1,0 +1,114 @@
+/**
+ * Copyright 2022, 2026 IBM Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the 'License');
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ **/
+
+import PointPointIndex from '../../components/MQPatterns/PointToPoint/index';
+import PubSubIndex from '../../components/MQPatterns/PubSub';
+import RequestResponseIndex from '../../components/MQPatterns/RequestResponse';
+import DevHandbook from '../../components/DevHandbook';
+
+import {
+  Tabs,
+  TabList,
+  Tab,
+  TabPanels,
+  TabPanel,
+  Grid,
+  Column,
+  Link,
+} from '@carbon/react';
+import { Launch } from '@carbon/react/icons';
+
+const LandingPage = () => {
+  return (
+    <Grid className="landing-page" condensed>
+      <Column lg={16} md={8} sm={4} className="landing-page__heading-section">
+        <div className="landing-page__heading-text">
+          <h1 className="landing-page__heading">IBM MQ messaging patterns</h1>
+          <p className="landing-page__description">
+            Explore how applications communicate using IBM MQ messaging
+            patterns. To deploy this showcase app to AWS and learn more about MQ
+            messaging patterns,{' '}
+            <Link
+              href="https://developer.ibm.com/tutorials/mq-build-deploy-ibm-mq-app-to-aws-cloud/"
+              target="_blank"
+              rel="noopener noreferrer"
+              renderIcon={Launch}>
+              visit this tutorial
+            </Link>
+            .
+          </p>
+        </div>
+        <DevHandbook />
+      </Column>
+      <Column lg={16} md={8} sm={4} className="landing-page__tabs">
+        <Tabs>
+          <TabList aria-label="IBM MQ messaging patterns" contained={false}>
+            <Tab>POINT-TO-POINT</Tab>
+            <Tab>PUBLISHER / SUBSCRIBER</Tab>
+            <Tab>REQUEST / RESPONSE</Tab>
+          </TabList>
+          <TabPanels>
+            <TabPanel>
+              <PointPointIndex />
+            </TabPanel>
+            <TabPanel>
+              <PubSubIndex />
+            </TabPanel>
+            <TabPanel>
+              <RequestResponseIndex />
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
+      </Column>
+      <Column lg={16} md={8} sm={4} className="landing-page__r3">
+        <Grid>
+          <Column md={4} lg={4} sm={4}>
+            <h3 className="landing-page__label">
+              Thousands of businesses worldwide depend on IBM MQ
+            </h3>
+          </Column>
+          <Column md={4} lg={4} sm={4}>
+            90% of the top 100 global banks
+          </Column>
+          <Column md={4} lg={4} sm={4}>
+            73% of the Fortune 100
+          </Column>
+          <Column md={4} lg={4} sm={4}>
+            80% of the top 20 telecommunications companies
+          </Column>
+        </Grid>
+      </Column>
+      <Column lg={16} md={8} sm={4} className="landing-page__r3">
+        <Grid>
+          <Column md={4} lg={4} sm={4}>
+            <h3 className="landing-page__label">Benefits</h3>
+          </Column>
+          <Column md={4} lg={4} sm={4}>
+            Insulate your business from risks
+          </Column>
+          <Column md={4} lg={4} sm={4}>
+            Simple multi-style messaging
+          </Column>
+          <Column md={4} lg={4} sm={4}>
+            24x7x365 technical support
+          </Column>
+        </Grid>
+      </Column>
+    </Grid>
+  );
+};
+
+export default LandingPage;

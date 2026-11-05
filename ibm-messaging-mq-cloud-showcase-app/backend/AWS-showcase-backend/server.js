@@ -1,5 +1,5 @@
 /**
- * Copyright 2022, 2023 IBM Corp.
+ * Copyright 2022, 2026 IBM Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the 'License');
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  **/
- // This is boiler plate Node.js HTTP code, that pull ins the
- // mqapp express app.
-
+// This is boiler plate Node.js HTTP code, that pull ins the
+// mqapp express app.
+require('dotenv').config();
 
 // Set Logging options
 let debug_info = require('debug')('mqapp-server:info');
 let debug_warn = require('debug')('mqapp-server:warn');
 
-debug_info("Process env settings are: ");
-debug_info("LD_LIBRARY_PATH : ", process.env.LD_LIBRARY_PATH);
-debug_info("MQ_INSTALLATION_PATH : ", process.env.MQ_INSTALLATION_PATH);
+debug_info('Process env settings are: ');
+debug_info('LD_LIBRARY_PATH : ', process.env.LD_LIBRARY_PATH);
+debug_info('MQ_INSTALLATION_PATH : ', process.env.MQ_INSTALLATION_PATH);
 
 //process.env.LD_LIBRARY_PATH='/app/node_modules/ibmmq/redist/lib64'
 //process.env.MQ_INSTALLATION_PATH='/app/node_modules/ibmmq/redist'
@@ -31,13 +31,10 @@ debug_info("MQ_INSTALLATION_PATH : ", process.env.MQ_INSTALLATION_PATH);
 const app = require('./mqapp');
 const http = require('http');
 
-
 // Event listener for HTTP server "listening" event.
 function onListening() {
   var addr = server.address();
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
+  var bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
   debug_info('Listening on ' + bind);
 }
 
@@ -47,9 +44,7 @@ function onError(error) {
     throw error;
   }
 
-  var bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
+  var bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
 
   // handle specific listen errors with friendly messages
   switch (error.code) {
@@ -79,7 +74,6 @@ function normalizePort(val) {
   }
   return false;
 }
-
 
 // Create http server and start listening
 var port = normalizePort(process.env.PORT || '8080');

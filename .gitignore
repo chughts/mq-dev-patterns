@@ -10,10 +10,33 @@
 !**/Go/src/*.go
 **/node_modules/*
 .idea
-amqp-vertx/target/*
+**/target/*
 .terraform.*
 .terraform/
 terraform.tfstate.*
 terraform.tfstate
 
+mqjms.log.*
+FFDC/
+bin/
 
+**/dist/
+**/build/
+**/.vite/
+
+# Associated with the Python code
+venv*
+Python/tmp/
+
+# Standard Eclipse control files
+.project
+.settings 
+.classpath
+
+# VSCode
+.vscode
+
+
+
+# Bob (local AI assistant skills and artifacts)
+.bob/
